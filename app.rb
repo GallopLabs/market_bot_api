@@ -4,43 +4,52 @@ class MarketBotAPI < Sinatra::Base
 
   VERSION = '0.1.0'
 
-  get '/' do
-    content_type :json
+  configure do
+    set :dump_errors, false
+    set :raise_errors, true
+    set :show_exceptions, false
+  end
 
-    {
-      app:     self.name,
-      version: VERSION
-    }.to_json
+  before do
+    content_type :json
+  end
+
+  get '/version' do
+    { success: true, version: VERSION }.to_json
   end
 
   get '/app/:id' do
-    content_type   :json
     getApplication params[:id]
 
     {
-      market_id:          @appID,
-      title:              @app.title,
-      category:           @app.category,
-      developer:          @app.developer,
-      installs:           @app.installs,
-      price:              @app.price,
-      votes:              @app.votes,
-      stars:              @app.stars,
-      stars_distribution: @app.stars_distribution,
-      updated:            @app.updated,
-      content_rating:     @app.content_rating,
-      icon_url:           @app.banner_icon_url,
-      image_url:          @app.banner_image_url,
+      success: true,
+      app: {
+        market_id:          @appID,
+        title:              @app.title,
+        category:           @app.category,
+        developer:          @app.developer,
+        installs:           @app.installs,
+        price:              @app.price,
+        votes:              @app.votes,
+        stars:              @app.stars,
+        stars_distribution: @app.stars_distribution,
+        updated:            @app.updated,
+        content_rating:     @app.content_rating,
+        icon_url:           @app.banner_icon_url,
+        image_url:          @app.banner_image_url,
+      }
     }.to_json
   end
 
   get '/developer/:id' do
-    content_type :json
     getDeveloper params[:id]
 
     {
-      developer_id: @devID,
-      apps:         @dev.results
+      success: true,
+      developer: {
+        developer_id: @devID,
+        apps:         @dev.results
+      }
     }.to_json
   end
 
@@ -52,16 +61,28 @@ class MarketBotAPI < Sinatra::Base
 
       @app ||= MarketBot::Android::App.new(@appID).update
       throw ArgumentError unless @app.title
-    rescue ArgumentError
-      halt 500
+    rescue ArgumentError, NoMethodError
+      halt 400, {
+        'Content-Type' => 'application/json'
+      }, {
+        success: false,
+        message: 'invalid application ID'
+      }.to_json
     end
 
     def getDeveloper(id)
       @devID ||= id
-      throw ArgumentError unless @devID.match(/^[\w ]+/)
+      throw ArgumentError unless @devID.match(/^[\w\+-]+/)
 
       @dev ||= MarketBot::Android::Developer.new(@devID).update
       throw ArgumentError unless @dev.results.count > 0
+    rescue ArgumentError, NoMethodError
+      halt 400, {
+        'Content-Type' => 'application/json'
+      }, {
+        success: false,
+        message: 'invalid developer ID'
+      }.to_json
     end
 
   end # helpers
