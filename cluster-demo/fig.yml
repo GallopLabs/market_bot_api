@@ -1,0 +1,35 @@
+consul:
+  image: progrium/consul:consul-0.4
+  ports:
+    - "8300:8300"
+    - "8301:8301"
+    - "8301:8301/udp"
+    - "8302:8302"
+    - "8302:8302/udp"
+    - "8400:8400"
+    - "8500:8500"
+    - "172.17.42.1:53:53/udp"
+  command: -server -bootstrap-expect 1
+
+registrator:
+  name: shipyard.bnotions.com
+  image: progrium/registrator
+  links:
+    - consul
+  volumes:
+    - "/var/run/docker.sock:/tmp/docker.sock"
+  command: consul://consul:8500
+
+marketbot:
+  image: market_bot_api
+  ports:
+    - "9292"
+  environment:
+    SERVICE_NAME: marketbot
+
+balancer:
+  build: ./
+  links:
+    - consul
+  ports:
+    - "8080:80" 
