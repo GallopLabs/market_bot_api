@@ -107,3 +107,37 @@ Supported by market_bot, but not currently implemented in this API.
 
 Supported by market_bot, but not currently implemented in this API.
 
+# Docker
+
+This repository comes with a valid Dockerfile for building this service as a docker container.
+
+## Build Container
+
+`docker build -t market_bot_api .`
+
+## Docker Cluster
+
+Once you have built the market_bot_api container you can experiment with docker clustering using the fig definition located in `cluster-demo`. The cluster is built on consul, registrator, and consul-templates.
+
+* Consul - A service discovery and configuration management service.
+* Registrator - register containers with exposed ports to consul.
+* Consul-Templates - Define dynamic configuration files and responses to changes in consul.
+
+### Start cluster
+
+`fig up -d`
+
+* Consul - `http://localhost:8500`
+* Balancer - `http://localhost:8080`
+* MarketBot - `http://localhost:8080/hostname`
+
+__NOTE:__ Consul may take a few minutes to start up. When you can see the services listed on the main page it's ready.
+
+### Scale Up
+
+`fig scale marketbot=4`
+
+### Scale Down
+
+`fig scale marketbot=1`
+

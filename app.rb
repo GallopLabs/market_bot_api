@@ -20,7 +20,7 @@ class MarketBotAPI < Sinatra::Base
 
   # for a cluster demo
   get '/hostname' do
-    { success: true, hostname: `hostname` }.to_json
+    { success: true, hostname: `hostname`.chomp }.to_json
   end
 
   get '/app/:id' do

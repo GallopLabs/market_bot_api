@@ -4,7 +4,7 @@ upstream marketbot {
 
 server {
   listen      80;
-  server_name {{key "service/marketbot/server_name"}};
+  server_name _;
 
   location / {
     proxy_pass       http://marketbot;
