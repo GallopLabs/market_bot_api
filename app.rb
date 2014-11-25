@@ -18,6 +18,11 @@ class MarketBotAPI < Sinatra::Base
     { success: true, version: VERSION }.to_json
   end
 
+  # for a cluster demo
+  get '/hostname' do
+    { success: true, hostname: `hostname` }.to_json
+  end
+
   get '/app/:id' do
     getApplication params[:id]
 
