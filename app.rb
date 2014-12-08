@@ -58,6 +58,15 @@ class MarketBotAPI < Sinatra::Base
     }.to_json
   end
 
+  get '/search/:query' do
+    performSearch params[:query]
+
+    {
+      success: true,
+      results: @search.results
+    }.to_json
+  end
+
   helpers do
 
     def getApplication(id)
@@ -87,6 +96,21 @@ class MarketBotAPI < Sinatra::Base
       }, {
         success: false,
         message: 'invalid developer ID'
+      }.to_json
+    end
+
+    def performSearch(query)
+      @query ||= query
+      throw ArgumentError if @query.nil?
+
+      @search ||= MarketBot::Android::SearchQuery.new(@query).update
+      throw ArgumentError unless @search.results.count > 0
+    rescue ArgumentError, NoMethodError
+      halt 400, {
+        'Content-Type' => 'application/json'
+      }, {
+        success: false,
+        message: 'invalid search query'
       }.to_json
     end
 
