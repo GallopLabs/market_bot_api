@@ -2,7 +2,7 @@ require 'sinatra/base'
 
 class MarketBotAPI < Sinatra::Base
 
-  VERSION = '0.1.0'
+  VERSION = '0.1.1'
 
   configure do
     set :dump_errors, false
