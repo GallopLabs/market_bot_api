@@ -29,7 +29,7 @@ class MarketBotAPI < Sinatra::Base
     {
       success: true,
       app: {
-        market_id:          @appID,
+        market_id:          @app.app_id,
         title:              @app.title,
         category:           @app.category,
         developer:          @app.developer,
@@ -52,7 +52,6 @@ class MarketBotAPI < Sinatra::Base
     {
       success: true,
       developer: {
-        developer_id: @devID,
         apps:         @dev.results
       }
     }.to_json
@@ -69,11 +68,10 @@ class MarketBotAPI < Sinatra::Base
 
   helpers do
 
-    def getApplication(id)
-      @appID ||= id
-      throw ArgumentError unless @appID.match(/^\w+\.\w+\.\w+/)
+    def getApplication(app_id)
+      throw ArgumentError unless app_id.match(/^\w+\.\w+\.\w+/)
 
-      @app ||= MarketBot::Android::App.new(@appID).update
+      @app ||= MarketBot::Android::App.new(app_id).update
       throw ArgumentError unless @app.title
     rescue ArgumentError, NoMethodError
       halt 400, {
@@ -84,11 +82,10 @@ class MarketBotAPI < Sinatra::Base
       }.to_json
     end
 
-    def getDeveloper(id)
-      @devID ||= id
-      throw ArgumentError unless @devID.match(/^[\w\+-]+/)
+    def getDeveloper(dev_id)
+      throw ArgumentError unless dev_id.match(/^[\w\+-]+/)
 
-      @dev ||= MarketBot::Android::Developer.new(@devID).update
+      @dev ||= MarketBot::Android::Developer.new(dev_id).update
       throw ArgumentError unless @dev.results.count > 0
     rescue ArgumentError, NoMethodError
       halt 400, {
@@ -100,17 +97,16 @@ class MarketBotAPI < Sinatra::Base
     end
 
     def performSearch(query)
-      @query ||= query
-      throw ArgumentError if @query.nil?
+      throw ArgumentError if query.nil?
 
-      @search ||= MarketBot::Android::SearchQuery.new(@query).update
+      @search ||= MarketBot::Android::SearchQuery.new(query).update({ max_page: 2 })
       throw ArgumentError unless @search.results.count > 0
     rescue ArgumentError, NoMethodError
       halt 400, {
         'Content-Type' => 'application/json'
       }, {
         success: false,
-        message: 'invalid search query'
+        message: 'no search results found'
       }.to_json
     end
 
