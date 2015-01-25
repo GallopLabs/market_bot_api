@@ -1,7 +1,7 @@
 FROM ubuntu:14.04
 MAINTAINER Jonathon W. Marshall "jonathon@galloplabs.com"
 
-RUN apt-get update && apt-get install -y build-essential curl git ruby ruby-dev
+RUN apt-get update && apt-get install -y build-essential curl git ruby ruby-dev libxml2-dev zlib1g-dev
 RUN gem install --no-ri --no-rdoc bundler
 RUN mkdir -p /srv/app
 
