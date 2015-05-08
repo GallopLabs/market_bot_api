@@ -2,7 +2,7 @@ require 'sinatra/base'
 
 class MarketBotAPI < Sinatra::Base
 
-  VERSION = '0.1.1'
+  VERSION = '0.1.2'
 
   configure do
     set :dump_errors, false
@@ -14,14 +14,18 @@ class MarketBotAPI < Sinatra::Base
     content_type :json
   end
 
+  get '/' do
+    { }
+  end
+
   get '/version' do
     { success: true, version: VERSION }.to_json
   end
 
   # for a cluster demo
-  get '/hostname' do
-    { success: true, hostname: `hostname`.chomp }.to_json
-  end
+  #get '/hostname' do
+  #  { success: true, hostname: `hostname`.chomp }.to_json
+  #end
 
   get '/app/:id' do
     getApplication params[:id]
